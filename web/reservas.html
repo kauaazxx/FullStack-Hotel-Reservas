@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Reservas do Quarto</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="layout">
+
+        <aside class="sidebar">
+
+            <div class="logo">
+                <h2> Hotel<br>Reservas</h2>
+            </div>
+
+            <div class="menu">
+
+                <a href="index.html"
+                   class="ativo">
+                    Quartos
+                </a>
+
+                <a href="#">
+                    Reservas
+                </a>
+
+                <a href="#">
+                    Sobre
+                </a>
+
+            </div>
+
+        </aside>
+
+        <main class="content">
+
+            <div class="topo">
+
+                <div>
+
+                    <h1 id="titulo">
+                        Reservas do Quarto
+                    </h1>
+
+                    <p class="subtitulo"
+                       id="tipo-quarto">
+                    </p>
+
+                </div>
+
+                <button
+                    class="btn-azul"
+                    onclick="novaReserva()"
+                >
+                    + Nova Reserva
+                </button>
+
+            </div>
+
+            <div class="tabela">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>ID</th>
+                            <th>Hóspede</th>
+                            <th>Entrada</th>
+                            <th>Saída</th>
+                            <th>Ações</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="lista-reservas">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <br>
+
+            <button
+                class="btn-voltar"
+                onclick="voltar()"
+                style="width:200px"
+            >
+                ← Voltar
+            </button>
+
+        </main>
+
+    </div>
+
+    <script>
+
+        const api =
+            "http://localhost:3000";
+
+        const params =
+            new URLSearchParams(
+                window.location.search
+            );
+
+        const quartoId =
+            params.get("id");
+
+        async function carregarReservas(){
+
+            try{
+
+                const quartoResponse =
+                    await fetch(
+                        `${api}/quartos`
+                    );
+
+                const quartos =
+                    await quartoResponse.json();
+
+                const quarto =
+                    quartos.find(
+                        q => q.id ==
+                        quartoId
+                    );
+
+                document
+                    .getElementById(
+                        "titulo"
+                    )
+                    .innerText =
+                    `Reservas do Quarto ${quarto.numero}`;
+
+                document
+                    .getElementById(
+                        "tipo-quarto"
+                    )
+                    .innerText =
+                    `Tipo: ${quarto.tipo}`;
+
+                const response =
+                    await fetch(
+                        `${api}/reservas/${quartoId}`
+                    );
+
+                const reservas =
+                    await response.json();
+
+                const lista =
+                    document.getElementById(
+                        "lista-reservas"
+                    );
+
+                lista.innerHTML = "";
+
+                // LISTA RESERVAS
+                reservas.forEach(
+                    reserva => {
+
+                    lista.innerHTML += `
+                    <tr>
+
+                        <td>
+                            ${reserva.id}
+                        </td>
+
+                        <td>
+                            ${reserva.hospede}
+                        </td>
+
+                        <td>
+                            ${
+                                reserva
+                                .data_entrada
+                                .split("T")[0]
+                            }
+                        </td>
+
+                        <td>
+                            ${
+                                reserva
+                                .data_saida
+                                .split("T")[0]
+                            }
+                        </td>
+
+                        <td>
+
+                            <button
+                                class="
+                                btn-excluir
+                                "
+                                onclick="
+                                excluirReserva(
+                                ${reserva.id}
+                                )
+                                "
+                            >
+                                Excluir
+                            </button>
+
+                        </td>
+
+                    </tr>
+                    `;
+                });
+
+            }catch(error){
+
+                console.error(error);
+            }
+        }
+
+        function novaReserva(){
+
+            window.location.href =
+            `cadastrar-reserva.html?id=${quartoId}`;
+        }
+
+        async function excluirReserva(id){
+
+            const confirmar =
+                confirm(
+                "Deseja excluir esta reserva?"
+                );
+
+            if(!confirmar) return;
+
+            try{
+
+                await fetch(
+                    `${api}/reservas/${id}`,
+                    {
+                        method:
+                        "DELETE"
+                    }
+                );
+
+                carregarReservas();
+
+            }catch(error){
+
+                console.error(error);
+            }
+        }
+
+        function voltar(){
+
+            window.location.href =
+                "index.html";
+        }
+
+        carregarReservas();
+
+    </script>
+
+</body>
+</html>

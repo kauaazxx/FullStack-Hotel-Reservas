@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Cadastrar Quarto</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="layout">
+
+        <aside class="sidebar">
+
+            <div class="logo">
+                <h2> Hotel<br>Reservas</h2>
+            </div>
+
+            <div class="menu">
+
+                <a href="index.html"
+                   class="ativo">
+                    Quartos
+                </a>
+
+                <a href="#">
+                    Reservas
+                </a>
+
+                <a href="#">
+                    Sobre
+                </a>
+
+            </div>
+
+        </aside>
+
+        <main class="content">
+
+            <div class="form-card">
+
+                <h2>
+                    Cadastro de Quarto
+                </h2>
+
+                <p>
+                    Informe os dados do novo quarto
+                </p>
+
+                <label>
+                    Número do Quarto
+                </label>
+
+                <input
+                    type="text"
+                    id="numero"
+                    placeholder="Ex: 101"
+                >
+
+                <label>
+                    Tipo do Quarto
+                </label>
+
+                <select id="tipo">
+
+                    <option value="">
+                        Selecione o tipo
+                    </option>
+
+                    <option value="Standard">
+                        Standard
+                    </option>
+
+                    <option value="Luxo">
+                        Luxo
+                    </option>
+
+                    <option value="Suíte">
+                        Suíte
+                    </option>
+
+                </select>
+
+                <button
+                    class="btn-azul"
+                    onclick="cadastrarQuarto()"
+                    style="width:100%"
+                >
+                    Cadastrar
+                </button>
+
+                <button
+                    class="btn-voltar"
+                    onclick="voltar()"
+                >
+                    Voltar
+                </button>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <script>
+
+        const api =
+            "http://localhost:3000";
+
+        async function cadastrarQuarto(){
+
+            const numero =
+                document.getElementById(
+                    "numero"
+                ).value;
+
+            const tipo =
+                document.getElementById(
+                    "tipo"
+                ).value;
+
+            if(
+                !numero ||
+                !tipo
+            ){
+                alert(
+                    "Preencha todos os campos"
+                );
+                return;
+            }
+
+            try{
+
+                await fetch(
+                    `${api}/quartos`,
+                    {
+                        method: "POST",
+
+                        headers:{
+                            "Content-Type":
+                            "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            numero,
+                            tipo
+                        })
+                    }
+                );
+
+                alert(
+                    "Quarto cadastrado!"
+                );
+
+                window.location.href =
+                    "index.html";
+
+            }catch(error){
+
+                console.error(error);
+
+                alert(
+                    "Erro ao cadastrar"
+                );
+            }
+        }
+
+        function voltar(){
+            window.location.href =
+            "index.html";
+        }
+
+    </script>
+
+</body>
+</html>

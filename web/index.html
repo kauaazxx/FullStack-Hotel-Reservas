@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Hotel Reservas</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="layout">
+
+        <aside class="sidebar">
+
+            <div class="logo">
+                <h2>Hotel<br>Reservas</h2>
+            </div>
+
+            <div class="menu">
+
+                <a href="index.html"
+                   class="ativo">
+                    Quartos
+                </a>
+
+                <a href="#">
+                    Reservas
+                </a>
+
+                <a href="#">
+                    Sobre
+                </a>
+
+            </div>
+
+        </aside>
+
+        <main class="content">
+
+            <div class="topo">
+
+                <div>
+                    <h1>
+                        Quartos Cadastrados
+                    </h1>
+
+                    <p class="subtitulo">
+                        Gerencie os quartos do hotel
+                    </p>
+                </div>
+
+                <a href="cadastrar-quarto.html">
+                    <button class="btn-azul">
+                        + Novo Quarto
+                    </button>
+                </a>
+
+            </div>
+
+            <div class="tabela">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>
+                                Nº Quarto
+                            </th>
+
+                            <th>
+                                Tipo
+                            </th>
+
+                            <th>
+                                Ações
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="lista-quartos">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <script>
+
+        const api =
+            "http://localhost:3000";
+
+        async function carregarQuartos(){
+
+            try{
+
+                const response =
+                    await fetch(
+                        `${api}/quartos`
+                    );
+
+                const quartos =
+                    await response.json();
+
+                const lista =
+                    document.getElementById(
+                        "lista-quartos"
+                    );
+
+                lista.innerHTML = "";
+
+                quartos.forEach(quarto => {
+
+                    lista.innerHTML += `
+                        <tr>
+
+                            <td>
+                                ${quarto.numero}
+                            </td>
+
+                            <td>
+                                ${quarto.tipo}
+                            </td>
+
+                            <td>
+
+                                <button
+                                    class="btn-ver"
+                                    onclick="
+                                    verReservas(
+                                        ${quarto.id}
+                                    )
+                                    "
+                                >
+                                    Ver Reservas
+                                </button>
+
+                                <button
+                                    class="btn-excluir"
+                                    onclick="
+                                    excluirQuarto(
+                                        ${quarto.id}
+                                    )
+                                    "
+                                >
+                                    Excluir
+                                </button>
+
+                            </td>
+
+                        </tr>
+                    `;
+                });
+
+            }catch(error){
+                console.error(error);
+            }
+        }
+
+        function verReservas(id){
+
+            window.location.href =
+            `reservas.html?id=${id}`;
+        }
+
+        async function excluirQuarto(id){
+
+            const confirmar =
+                confirm(
+                    "Deseja excluir este quarto?"
+                );
+
+            if(!confirmar) return;
+
+            try{
+
+                await fetch(
+                    `${api}/quartos/${id}`,
+                    {
+                        method: "DELETE"
+                    }
+                );
+
+                carregarQuartos();
+
+            }catch(error){
+                console.error(error);
+            }
+        }
+
+        carregarQuartos();
+
+    </script>
+
+</body>
+</html>

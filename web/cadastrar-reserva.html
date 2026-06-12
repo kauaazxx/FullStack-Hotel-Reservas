@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Cadastrar Reserva</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="layout">
+
+        <aside class="sidebar">
+
+            <div class="logo">
+                <h2> Hotel<br>Reservas</h2>
+            </div>
+
+            <div class="menu">
+
+                <a href="index.html"
+                   class="ativo">
+                    Quartos
+                </a>
+
+                <a href="#">
+                    Reservas
+                </a>
+
+                <a href="#">
+                    Sobre
+                </a>
+
+            </div>
+
+        </aside>
+
+        <main class="content">
+
+            <div class="form-card">
+
+                <h2>
+                    Cadastro de Reserva
+                </h2>
+
+                <p id="info-quarto">
+
+                </p>
+
+                <label>
+                    Nome do Hóspede
+                </label>
+
+                <input
+                    type="text"
+                    id="hospede"
+                    placeholder="Ex: João da Silva"
+                >
+
+                <label>
+                    Data de Entrada
+                </label>
+
+                <input
+                    type="date"
+                    id="entrada"
+                >
+
+                <label>
+                    Data de Saída
+                </label>
+
+                <input
+                    type="date"
+                    id="saida"
+                >
+
+                <button
+                    class="btn-azul"
+                    onclick="cadastrarReserva()"
+                    style="width:100%"
+                >
+                    Cadastrar Reserva
+                </button>
+
+                <button
+                    class="btn-voltar"
+                    onclick="voltar()"
+                >
+                    Voltar
+                </button>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <script>
+
+        const api =
+            "http://localhost:3000";
+
+        const params =
+            new URLSearchParams(
+                window.location.search
+            );
+
+        const quartoId =
+            params.get("id");
+
+        async function carregarQuarto(){
+
+            try{
+
+                const response =
+                    await fetch(
+                        `${api}/quartos`
+                    );
+
+                const quartos =
+                    await response.json();
+
+                const quarto =
+                    quartos.find(
+                        q => q.id ==
+                        quartoId
+                    );
+
+                document
+                    .getElementById(
+                        "info-quarto"
+                    )
+                    .innerText =
+                    `Quarto: ${quarto.numero}
+                    | ${quarto.tipo}`;
+
+            }catch(error){
+
+                console.error(error);
+            }
+        }
+
+        async function cadastrarReserva(){
+
+            const hospede =
+                document
+                .getElementById(
+                    "hospede"
+                ).value;
+
+            const entrada =
+                document
+                .getElementById(
+                    "entrada"
+                ).value;
+
+            const saida =
+                document
+                .getElementById(
+                    "saida"
+                ).value;
+
+            if(
+                !hospede ||
+                !entrada ||
+                !saida
+            ){
+                alert(
+                    "Preencha todos os campos"
+                );
+                return;
+            }
+
+            try{
+
+                await fetch(
+                    `${api}/reservas`,
+                    {
+                        method:
+                        "POST",
+
+                        headers:{
+                            "Content-Type":
+                            "application/json"
+                        },
+
+                        body:
+                        JSON.stringify({
+
+                            hospede,
+
+                            data_entrada:
+                                entrada,
+
+                            data_saida:
+                                saida,
+
+                            quarto_id:
+                                Number(
+                                    quartoId
+                                )
+                        })
+                    }
+                );
+
+                alert(
+                    "Reserva cadastrada!"
+                );
+
+                window.location.href =
+                    `reservas.html?id=${quartoId}`;
+
+            }catch(error){
+
+                console.error(error);
+
+                alert(
+                    "Erro ao cadastrar reserva"
+                );
+            }
+        }
+
+        function voltar(){
+
+            window.location.href =
+            `reservas.html?id=${quartoId}`;
+        }
+
+        carregarQuarto();
+
+    </script>
+
+</body>
+</html>
